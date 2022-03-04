@@ -1,5 +1,20 @@
 #include <Keypad.h>
 #include <LiquidCrystal.h>
+#include <Stepper.h>
+
+int stepsPerRevolution = 40;
+int motorSpeed = 2;
+int portonAbierto = 22;//led porton abierto ROJO
+int portonCerrado = 23;//led porton cerrado AMARRILLO
+
+
+
+int contador = 0;
+Stepper motor1(stepsPerRevolution, A12, A13, A14, A15);
+Stepper motor2(stepsPerRevolution, A8, A9, A10, A11);
+
+int periodo =5000;
+unsigned long TiempoAhora=0;
 
 LiquidCrystal lcd(A0, A1, A2, A3, A4, A5);
 /* CODIGO PRUEBA EDUARDO */
@@ -54,6 +69,9 @@ String toks[4];
 String letrasToks[4] = {"A","B","C","D"};
 
 void setup() {
+  //leds de prueba de puertas
+  pinMode(portonAbierto, OUTPUT);//PA
+  pinMode(portonCerrado, OUTPUT);//PC
 
   //EMOJIS
   lcd.createChar(0, lock);
@@ -270,6 +288,49 @@ void entradaParqueo(){
     lcd.setCursor(0,0);
     lcd.print("ENTRANDO PARQUEO");
     lcd.setCursor(0,1);
-    lcd.print("- abriendo -");
+    controlPuertas();
+    lcd.setCursor(0,0);
+    lcd.print("Listo");
+     lcd.setCursor(0,1);
+    
   }
+}
+
+void controlPuertas(){
+  if(contador<1){
+  for (int i = 0; i < 1; i++) {
+    TiempoAhora = millis();
+     abrirPorton();
+     digitalWrite(portonAbierto, LOW);
+     lcd.setCursor(0,0);
+     lcd.print("- Ingreso vehiculo -");
+      lcd.setCursor(0,1);
+     while(millis() < TiempoAhora+periodo){
+    // espere [periodo] milisegundos
+    }
+    delay(5000);
+    cerrarPorton();
+    digitalWrite(portonCerrado, LOW);
+    contador=contador+1;
+  }
+  }
+}
+void abrirPorton() {            // 2 vueltas derecha
+  lcd.setCursor(0,0);
+  lcd.print("- abriendo -");
+   lcd.setCursor(0,1);
+ digitalWrite(portonAbierto, HIGH);
+  motor1.setSpeed(10); 
+  motor1.step(stepsPerRevolution);
+  delay(1000);
+}
+
+void cerrarPorton() {            // 2 vueltas derecha
+  lcd.setCursor(0,0);
+  lcd.print("- cerrando -");
+  lcd.setCursor(0,1);
+ digitalWrite(portonCerrado, HIGH);
+  motor2.setSpeed(10); 
+  motor2.step(-stepsPerRevolution);
+  delay(1000);
 }

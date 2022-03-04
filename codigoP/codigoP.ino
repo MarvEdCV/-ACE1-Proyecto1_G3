@@ -49,6 +49,10 @@ byte colPins[cols] = {6, 7, 8, 9};
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, rows, cols);
 // END Keypad --------------------
 
+// TOKEN
+String toks[4];
+String letrasToks[4] = {"A","B","C","D"};
+
 void setup() {
 
   //EMOJIS
@@ -83,10 +87,11 @@ void loop() {
     
         lcd.setCursor(0,1);
         lcd.print("                   ");
-      
-        if(code != NO_KEY){
-          Serial.println("KeyPad: " +String(code));
-        }
+        delay(5000); //tiempo 5 segundos de espera cuando se conecta
+
+        
+        genToken();
+        validarToken();
      }else{ //si no esta conectado a bluethoo que espere
          //timer1.update();
         //timer2.update();
@@ -125,4 +130,146 @@ void showScreen(){
 
   lcd.setCursor(0,1);
   lcd.print("Grupo3-Seccion A");
+}
+
+void genToken(){
+  long randomNumber = random(10);  // Generate a random number between 0 and 10
+  toks[0] = String(randomNumber);
+
+  randomNumber = random(0, 10); // Generate a random number between 0 and 10
+  toks[1] = String(randomNumber);
+
+  for (int i = 0; i < 2; i++){
+    randomNumber = random(0, 4);
+    toks[i+2] = String(letrasToks[randomNumber]);
+  }
+  
+  // Impresion TOKEN en LCD
+  lcd.setCursor(5,1);
+  lcd.print("TOKEN: ");
+  lcd.setCursor(12,1);
+  lcd.print(toks[0]);
+  lcd.setCursor(13,1);
+  lcd.print(toks[1]);
+  lcd.setCursor(14,1);
+  lcd.print(toks[2]);
+  lcd.setCursor(15,1);
+  lcd.print(toks[3]);
+
+  //aca mando token a aplicacion
+  delay(1000);
+}
+
+void validarToken(){
+  int intentos = 0;
+  String idToken = "";
+  char key;
+  
+  lcd.clear();
+  do{
+    if (intentos < 3){
+      lcd.setCursor(0, 0);
+      lcd.print("DIGITE SU TOKEN:");
+      lcd.setCursor(0, 1);
+      lcd.print(idToken);
+      
+      
+      while(true){
+        key = keypad.getKey();
+        if(key != NO_KEY){
+          //Serial.println("KeyPad: " +String(code));
+          if (key == '*'){
+            if (comprobarToken(idToken)){
+              lcd.clear();
+              lcd.setCursor(0, 0);
+              lcd.print(" TOKEN CORRECTO ");
+              lcd.setCursor(0, 1);
+              lcd.print("   "+idToken);
+              delay(2000);
+              //conectar entrada al parqueo
+              lcd.clear();
+              entradaParqueo();
+            }else{
+              lcd.clear();
+              lcd.setCursor(0, 0);
+              lcd.print("TOKEN INCORRECTO ");
+              lcd.setCursor(0, 1);
+              lcd.print("   "+idToken);
+              intentos++;
+               idToken = "";
+              delay(2000);
+              lcd.clear();
+              break;
+            }
+          }else{
+            idToken += key;
+            break;
+          }
+        }
+      }
+  
+      if (idToken.length() > 4){
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("EXCEDE SIZE");
+        lcd.setCursor(0, 1);
+        lcd.print("  DEL TOKEN   ");
+        delay(2000);
+        idToken = "";
+        lcd.clear();
+        
+        intentos++;
+      }
+    }else{
+      break;
+    }
+    
+  }while (key != '#');
+
+  if (intentos == 3){
+    //suena la alrma de exceder 3 intentos
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("TOKEN INVALIDO");
+    lcd.setCursor(0,1);
+    lcd.print("Excedio 3 intents");
+    delay(2000);
+  }else{
+    //suena la alarma por presionar cancel
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("BOTON CANCEL");
+    lcd.setCursor(0,1);
+    lcd.print("SE ACTIVO");
+    delay(2000);
+  }
+  
+}
+
+bool comprobarToken(String pass){
+
+  if(pass.length() != 4){
+    return false;
+  }
+  
+  if (String(pass[0]) != toks[0]){
+    return false;
+  }else if (String(pass[1]) != toks[1]){
+    return false;
+  }else if (String(pass[2]) != toks[2]){
+    return false;
+  }else if (String(pass[3]) != toks[3]){
+    return false;
+  }
+  
+  return true;
+}
+
+void entradaParqueo(){
+  while (true){
+    lcd.setCursor(0,0);
+    lcd.print("ENTRANDO PARQUEO");
+    lcd.setCursor(0,1);
+    lcd.print("- abriendo -");
+  }
 }

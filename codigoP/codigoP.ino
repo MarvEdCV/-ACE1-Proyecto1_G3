@@ -93,6 +93,19 @@ void setup() {
 }
 
 void loop() {
+  
+  //INICIO EDUARDO
+    if(Serial.available()>0){
+      entrada = Serial.read();
+    }
+    if(entrada=='E'){;
+      digitalWrite(led,HIGH);
+    }
+    if(entrada=='A'){
+      digitalWrite(led,LOW);
+    }
+  //FIN EDUARDO
+  
   bool conection = true;
   // put your main code here, to run repeatedly:
   tiempo2 = millis();
@@ -123,18 +136,6 @@ void loop() {
         lcd.print("                   ");
       }
   }
- 
-  //INICIO EDUARDO
-    if(Serial.available()>0){
-      entrada = Serial.read();
-    }
-    if(entrada=='E'){;
-      digitalWrite(led,HIGH);
-    }
-    if(entrada=='A'){
-      digitalWrite(led,LOW);
-    }
-  //FIN EDUARDO
 }
 
 void showScreen(){

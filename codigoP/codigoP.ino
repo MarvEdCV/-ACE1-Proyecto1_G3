@@ -68,6 +68,9 @@ Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, rows, cols);
 String toks[4];
 String letrasToks[4] = {"A","B","C","D"};
 
+// BUZZER
+int pinBuzzer = 53;
+
 void setup() {
   //leds de prueba de puertas
   pinMode(portonAbierto, OUTPUT);//PA
@@ -208,6 +211,8 @@ void validarToken(){
               lcd.clear();
               entradaParqueo();
             }else{
+              tone(pinBuzzer, 500); // digitalWrite(buzzerP, HIGH);
+              
               lcd.clear();
               lcd.setCursor(0, 0);
               lcd.print("TOKEN INCORRECTO ");
@@ -217,6 +222,7 @@ void validarToken(){
                idToken = "";
               delay(2000);
               lcd.clear();
+              noTone(pinBuzzer); // digitalWrite(buzzerP, LOW);
               break;
             }
           }else{
@@ -246,20 +252,24 @@ void validarToken(){
 
   if (intentos == 3){
     //suena la alrma de exceder 3 intentos
+    tone(pinBuzzer, 500);
     lcd.clear();
     lcd.setCursor(0,0);
     lcd.print("TOKEN INVALIDO");
     lcd.setCursor(0,1);
     lcd.print("Excedio 3 intents");
     delay(2000);
+    noTone(pinBuzzer); // digitalWrite(buzzerP, LOW);
   }else{
     //suena la alarma por presionar cancel
+    tone(pinBuzzer, 500);
     lcd.clear();
     lcd.setCursor(0,0);
     lcd.print("BOTON CANCEL");
     lcd.setCursor(0,1);
     lcd.print("SE ACTIVO");
     delay(2000);
+    noTone(pinBuzzer); // digitalWrite(buzzerP, LOW);
   }
   
 }

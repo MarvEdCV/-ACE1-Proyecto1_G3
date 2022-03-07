@@ -20,6 +20,7 @@ LiquidCrystal lcd(A0, A1, A2, A3, A4, A5);
 /* CODIGO PRUEBA EDUARDO */
 int led=13;
 char entrada;
+String SendData = "dato enviado!";
 /*FIN EDUARDO*/
 
 byte lock[8] = {
@@ -93,6 +94,8 @@ void setup() {
 
 void loop() {
   //INICIO EDUARDO
+    Serial.print(SendData);
+    /*
     if(Serial.available()>0){
       entrada = Serial.read();
     }
@@ -101,7 +104,8 @@ void loop() {
     }
     if(entrada=='A'){
       digitalWrite(led,LOW);
-    }
+    }*/
+    
   //FIN EDUARDO
  /* 
   bool conection = true;

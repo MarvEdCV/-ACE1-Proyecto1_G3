@@ -72,6 +72,9 @@ String letrasToks[4] = {"A","B","C","D"};
 int pinBuzzer = 53;
 
 void setup() {
+  //INICIO EDUARDO
+   pinMode(13,OUTPUT); //Declaramos el pin como salida
+  //FIN EDUARDO
   //leds de prueba de puertas
   pinMode(portonAbierto, OUTPUT);//PA
   pinMode(portonCerrado, OUTPUT);//PC
@@ -85,15 +88,10 @@ void setup() {
   //INICIO LCD
   lcd.begin(16,2);
   lcd.clear();
-
-  //INICIO EDUARDO
-   pinMode(13,OUTPUT); //Declaramos el pin como salida
-  //FIN EDUARDO
   Serial.begin(9600);
 }
 
 void loop() {
-  
   //INICIO EDUARDO
     if(Serial.available()>0){
       entrada = Serial.read();
@@ -105,7 +103,7 @@ void loop() {
       digitalWrite(led,LOW);
     }
   //FIN EDUARDO
-  
+ /* 
   bool conection = true;
   // put your main code here, to run repeatedly:
   tiempo2 = millis();
@@ -135,7 +133,7 @@ void loop() {
         lcd.setCursor(0,1);
         lcd.print("                   ");
       }
-  }
+  }*/
 }
 
 void showScreen(){

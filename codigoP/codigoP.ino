@@ -20,7 +20,9 @@ LiquidCrystal lcd(A0, A1, A2, A3, A4, A5);
 /* CODIGO PRUEBA EDUARDO */
 int led=13;
 char entrada;
-String SendData = "dato enviado!";
+String User = "admin"; //Variable que recibe el nombre de usuario para iniciar sesión.
+String UserPass = "1234";//Variable que recibe la contraseña del usuario para iniciar sesión.
+char RegistrarUsuario;
 /*FIN EDUARDO*/
 
 byte lock[8] = {
@@ -94,10 +96,11 @@ void setup() {
 
 void loop() {
   //INICIO EDUARDO
-    Serial.print(SendData);
+    Serial.print(User + "-" + UserPass ); //ASI SE MANDAN DATOS PARA LA APP!!!
+    delay(500);    
     /*
     if(Serial.available()>0){
-      entrada = Serial.read();
+      entrada = Serial.read(); //ASI SE LEEN/RECIBEN DATOS DE LA APP
     }
     if(entrada=='E'){;
       digitalWrite(led,HIGH);

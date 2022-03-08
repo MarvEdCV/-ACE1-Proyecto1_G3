@@ -82,6 +82,10 @@ void setup() {
   pinMode(portonAbierto, OUTPUT);//PA
   pinMode(portonCerrado, OUTPUT);//PC
 
+   //BUZZER
+  pinMode(pinBuzzer, OUTPUT);
+  noTone(pinBuzzer);
+
   //EMOJIS
   lcd.createChar(0, lock);
   lcd.createChar(1, smile);
@@ -92,6 +96,9 @@ void setup() {
   lcd.begin(16,2);
   lcd.clear();
   Serial.begin(9600);
+
+  // NUM
+  randomSeed(analogRead(A6));
 }
 
 void loop() {

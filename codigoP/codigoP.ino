@@ -96,8 +96,8 @@ void setup() {
 
 void loop() {
   //INICIO EDUARDO
-    //Serial.print(User + "-" + UserPass ); //ASI SE MANDAN DATOS PARA LA APP!!!
-    //delay(500);    
+    Serial.print(User + "-" + UserPass ); //ASI SE MANDAN DATOS PARA LA APP!!!
+    delay(500);    
     /*
     if(Serial.available()>0){
       entrada = Serial.read(); //ASI SE LEEN/RECIBEN DATOS DE LA APP

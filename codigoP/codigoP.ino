@@ -1,4 +1,4 @@
-#include <Keypad.h>
+  #include <Keypad.h>
 #include <LiquidCrystal.h>
 #include <Stepper.h>
 
@@ -22,8 +22,12 @@ int led=13;
 String entrada;
 String User = "admin"; //Variable que recibe el nombre de usuario para iniciar sesión.
 String UserPass = "1234";//Variable que recibe la contraseña del usuario para iniciar sesión.
+String User2 = "admin2"; //Variable que recibe el nombre de usuario para iniciar sesión.
+String UserPass2 = "12342";
 char RegistrarUsuario;
+String Usuarios[2] = {"admin-1234","sara-sarita"};
 /*FIN EDUARDO*/
+
 
 byte lock[8] = {
   0b01110,
@@ -104,9 +108,25 @@ void setup() {
 
 void loop() {
   //INICIO EDUARDO
-    //Serial.print(User + "-" + UserPass ); //ASI SE MANDAN DATOS PARA LA APP!!!
-    //delay(500);    
+
+  if(Serial.available()>0){
+    bool bandera=false;
+    entrada = Serial.readString();
+    for(int i =0; i<2;i++){
+      if(Usuarios[i] == entrada){
+        bandera = true;
+      }
+    }
+    if(bandera){
+      Serial.print(true);
+      bandera = false;
+    }else{
+      Serial.print(false + entrada);
+    }
+  }
     
+        
+    /*
     if(Serial.available()>0){
       entrada = Serial.readString(); //ASI SE LEEN/RECIBEN DATOS DE LA APP
       lcd.setCursor(0,0);
@@ -117,7 +137,7 @@ void loop() {
     }
     if(entrada=="A"){
       digitalWrite(led,LOW);
-    }
+    }*/
     
   //FIN EDUARDO
  /* 

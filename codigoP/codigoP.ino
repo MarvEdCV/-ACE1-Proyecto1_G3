@@ -28,6 +28,7 @@ char RegistrarUsuario;
 String Usuarios[2] = {"admin-1234","sara-sarita"};
 String Vartmp = "Eduardo-1234,REGISTRAR";
 Separador s;//variable para separar usuario de funcion a realizar
+String Token = "1234XZ";
 /*FIN EDUARDO*/
 
 
@@ -124,6 +125,8 @@ void loop() {
      // Serial1.println("Estoy en login");
       //Serial.print("Estoy en login");
       BtnLogin(UsuarioContra);
+    }else if(Funcion=="TOKEN"){
+      Serial.println(Token);
     }
     
   }

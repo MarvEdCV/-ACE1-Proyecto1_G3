@@ -10,7 +10,7 @@ int stepsPerRevolution = 40;
 int motorSpeed = 2;
 int portonAbierto = 22;//led porton abierto ROJO
 int portonCerrado = 23;//led porton cerrado AMARRILLO
-
+String tokenM = "";
 int contador = 0;
 Stepper motor1(stepsPerRevolution, A12, A13, A14, A15);
 Stepper motor2(stepsPerRevolution, A8, A9, A10, A11);
@@ -96,6 +96,7 @@ void setup() {
   //leds de prueba de puertas
   pinMode(portonAbierto, OUTPUT);//PA
   pinMode(portonCerrado, OUTPUT);//PC
+  pinMode(A7, INPUT); 
 
   //BUZZER
   pinMode(pinBuzzer, OUTPUT);
@@ -115,8 +116,9 @@ void setup() {
     randomSeed(analogRead(A6));
     Serial.begin(9600);
     Serial1.begin(9600);
+    Serial3.begin(9600);
 
-  String tokenM = "";
+ 
 // No funciona con lo de NUM
   // LED 8X8
   /*
@@ -128,6 +130,7 @@ void setup() {
 }
 
 void loop() {
+  
   //INICIO EDUARDO
 
   /*if(Serial.available()>0){
@@ -202,6 +205,7 @@ void loop() {
 
       } else if (validacion == "correcto") {
         seleccionParqueo();
+        
       }
 
     } else { //si no a iniciado sesion que espere
@@ -499,8 +503,6 @@ void entradaParqueo() {
   controlPuertas();
   lcd.setCursor(0, 0);
   lcd.print("Listo              ");
-
-  delay(3000);
   lcd.clear();
 }
 
@@ -523,6 +525,29 @@ void controlPuertas() {
     }
   }
 }
+
+void salidaPuertas() {
+  if (contador < 1) {
+    for (int i = 0; i < 1; i++) {
+      TiempoAhora = millis();
+      abrirPorton();
+      digitalWrite(portonAbierto, LOW);
+      lcd.setCursor(0, 0);
+      lcd.print("Salida vehiculo      ");
+      lcd.setCursor(0, 1);
+      while (millis() < TiempoAhora + periodo) {
+        // espere [periodo] milisegundos
+      }
+      delay(5000);
+      cerrarPorton();
+      digitalWrite(portonCerrado, LOW);
+      contador = contador + 1;
+    }
+  }
+}
+
+
+
 void abrirPorton() {            // 2 vueltas derecha
   lcd.setCursor(0, 0);
   lcd.print("- abriendo -    ");
@@ -544,9 +569,18 @@ void cerrarPorton() {            // 2 vueltas derecha
 }
 
 void seleccionParqueo() {
+ //int n =digitalRead(11) ;
+  Serial3.println(digitalRead(A7));
+  if(digitalRead(A7) == 1){
+    salidaPuertas();
+  }else{
+  delay(3000);
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("selecciona parqueo");
   delay(2000);
   lcd.clear();
+  }
+   
+ 
 }

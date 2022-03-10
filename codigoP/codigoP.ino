@@ -1,7 +1,7 @@
-  #include <Keypad.h>
+#include <Keypad.h>
 #include <LiquidCrystal.h>
 #include <Stepper.h>
-
+#include <Separador.h>
 int stepsPerRevolution = 40;
 int motorSpeed = 2;
 int portonAbierto = 22;//led porton abierto ROJO
@@ -26,6 +26,8 @@ String User2 = "admin2"; //Variable que recibe el nombre de usuario para iniciar
 String UserPass2 = "12342";
 char RegistrarUsuario;
 String Usuarios[2] = {"admin-1234","sara-sarita"};
+String Vartmp = "Eduardo-1234,REGISTRAR";
+Separador s;//variable para separar usuario de funcion a realizar
 /*FIN EDUARDO*/
 
 
@@ -102,27 +104,28 @@ void setup() {
   // NUM
   randomSeed(analogRead(A6));
   Serial.begin(9600);
+  Serial1.begin(9600);
 
   
 }
 
 void loop() {
   //INICIO EDUARDO
-
+  
   if(Serial.available()>0){
-    bool bandera=false;
-    entrada = Serial.readString();
-    for(int i =0; i<2;i++){
-      if(Usuarios[i] == entrada){
-        bandera = true;
-      }
+    entrada = Serial.readString();//Serial.readString();
+    String UsuarioContra = s.separa(entrada,',',0);
+    String Funcion = s.separa(entrada,',',1);
+    if(Funcion == "REGISTRAR"){
+      Serial.println("Estoy en registrar");
+      Serial1.println("Estoy en registrar");
+      //BtnRegistrar(UsuarioContra);
+    }else if(Funcion == "LOGIN"){
+     // Serial1.println("Estoy en login");
+      //Serial.print("Estoy en login");
+      BtnLogin(UsuarioContra);
     }
-    if(bandera){
-      Serial.print(true);
-      bandera = false;
-    }else{
-      Serial.print(false + entrada);
-    }
+    
   }
     
         
@@ -172,6 +175,41 @@ void loop() {
       }
   }*/
 }
+
+//METODOS EDUARDO
+void BtnRegistrar(String entrada){
+  bool bandera=false;
+  for(int i =0; i<2;i++){
+    if(Usuarios[i] == entrada){
+      bandera = true;
+    }
+  }
+  if(bandera){
+    Serial.print(true);
+    bandera = false;
+  }else if(!bandera){
+    Serial.print(false);
+    //Aqui ingresar usuario a la EPROM
+  }  
+}
+void BtnLogin(String entrada){
+  bool bandera=false;
+  
+  for(int i =0; i<2;i++){
+    if(Usuarios[i] == entrada){
+      bandera = true;//Hace match el usuario que quiere entrar con el almacenado.
+    }
+  }
+  if(bandera){
+    Serial.print(true);//Aqui retornamos que ya esta registrado el usuario
+    bandera = false;
+  }else if(!bandera){
+    Serial.print(false);
+  }  
+}
+
+//FIN METODOS EDUARDO
+
 
 void showScreen(){
   lcd.setCursor(3,0);

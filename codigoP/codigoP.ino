@@ -116,6 +116,7 @@ void setup() {
     Serial.begin(9600);
     Serial1.begin(9600);
 
+  String tokenM = "";
 // No funciona con lo de NUM
   // LED 8X8
   /*
@@ -174,8 +175,9 @@ void loop() {
 
     //conection es una bandera que supone que se inicio sesion de manera correcta
     if (conection) { //Si se inicia sesion correctamente entra a las validaciones
+      String userEntrada = "*USUARIO*";
       lcd.setCursor(0, 0);
-      lcd.print(" *USUARIO*     ");
+      lcd.print(" "+userEntrada+"     ");
 
       lcd.setCursor(0, 1);
       lcd.print("   Bienvenido     ");
@@ -342,7 +344,7 @@ void showScreen() {
 }
 
 void genToken() {
-  String tokenM = "";
+  tokenM = "";
   long randomNumber = random(10);  // Generate a random number between 0 and 10
   toks[0] = String(randomNumber);
 

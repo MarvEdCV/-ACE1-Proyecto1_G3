@@ -113,7 +113,7 @@ void setup() {
 void loop() {
   //INICIO EDUARDO
   
-  if(Serial.available()>0){
+  /*if(Serial.available()>0){
     entrada = Serial.readString();//Serial.readString();
     String UsuarioContra = s.separa(entrada,',',0);
     String Funcion = s.separa(entrada,',',1);
@@ -132,7 +132,7 @@ void loop() {
   }
     
         
-    /*
+    
     if(Serial.available()>0){
       entrada = Serial.readString(); //ASI SE LEEN/RECIBEN DATOS DE LA APP
       lcd.setCursor(0,0);
@@ -146,7 +146,7 @@ void loop() {
     }*/
     
   //FIN EDUARDO
- /* 
+ 
   bool conection = true;
   // put your main code here, to run repeatedly:
   tiempo2 = millis();
@@ -155,19 +155,38 @@ void loop() {
     showScreen();
   }else if (tiempo2 > (tiempo1 + 1000)){//hay que subirlo a 10000
     char code = keypad.getKey();
-    
-     if (conection){ //Si esta conectado a Bluetooh que entre
+
+    //conection es una bandera que supone que se inicio sesion de manera correcta
+     if (conection){ //Si se inicia sesion correctamente entra a las validaciones
         lcd.setCursor(0,0);
         lcd.print(" *USUARIO*     ");
     
         lcd.setCursor(0,1);
-        lcd.print("                   ");
+        lcd.print("   Bienvenido     ");
         delay(5000); //tiempo 5 segundos de espera cuando se conecta
 
         
         genToken();
-        validarToken();
-     }else{ //si no esta conectado a bluethoo que espere
+        String validacion = validarToken();
+        if (validacion == "cancel"){
+          //solicitar si desea generar token otra vez
+          bool solicitud = true;
+          if (solicitud){
+            genToken();
+          }
+          
+        }else if (validacion == "fallido"){
+          //aca hay que mandarle a la aplicacion que ejecute y que pida si el quiere pedir otro token o salirse
+          bool solicitud = true;
+          if (solicitud){
+            genToken();
+          }
+          
+        }else if (validacion == "correcto") {
+          seleccionParqueo();
+        }
+        
+     }else{ //si no a iniciado sesion que espere
          //timer1.update();
         //timer2.update();
         lcd.setCursor(0,0);
@@ -176,7 +195,7 @@ void loop() {
         lcd.setCursor(0,1);
         lcd.print("                   ");
       }
-  }*/
+  }
 }
 
 //METODOS EDUARDO
@@ -247,21 +266,24 @@ void genToken(){
   lcd.setCursor(5,1);
   lcd.print("TOKEN: "); //esto borrar cuando se junte el codigo
 
-  //aca mando token a aplicacion
+  //aca mando token a aplicacion y muestra pantalla
   tokenM = toks[0] + toks[1] +toks[2] + toks[3]; // tokenM es el que se manda para aplication
   lcd.setCursor(12,1);
   lcd.print(tokenM);
   delay(1000);
 }
 
-void validarToken(){
+String validarToken(){
   int intentos = 0;
   String idToken = "";
   char key;
+  bool correct;
   
   lcd.clear();
   do{
+    
     if (intentos < 3){
+      correct = false;
       lcd.setCursor(0, 0);
       lcd.print("DIGITE SU TOKEN:");
       lcd.setCursor(0, 1);
@@ -280,9 +302,11 @@ void validarToken(){
               lcd.setCursor(0, 1);
               lcd.print("   "+idToken);
               delay(2000);
-              //conectar entrada al parqueo
+
               lcd.clear();
+              correct = true;
               entradaParqueo();
+              break;
             }else{
               tone(pinBuzzer, 500); // digitalWrite(buzzerP, HIGH);
               
@@ -317,6 +341,9 @@ void validarToken(){
         
         intentos++;
       }
+      if (correct){
+        break;
+      }
     }else{
       break;
     }
@@ -333,7 +360,9 @@ void validarToken(){
     lcd.print("Excedio 3 intents");
     delay(2000);
     noTone(pinBuzzer); // digitalWrite(buzzerP, LOW);
-  }else{
+    return "fallido";
+  }
+  if (key == '#'){
     //suena la alarma por presionar cancel
     tone(pinBuzzer, 500);
     lcd.clear();
@@ -343,8 +372,11 @@ void validarToken(){
     lcd.print("SE ACTIVO");
     delay(2000);
     noTone(pinBuzzer); // digitalWrite(buzzerP, LOW);
+    lcd.clear();
+    return "cancel";
   }
   
+  return "correcto";
 }
 
 bool comprobarToken(String pass){
@@ -367,16 +399,15 @@ bool comprobarToken(String pass){
 }
 
 void entradaParqueo(){
-  while (true){
-    lcd.setCursor(0,0);
-    lcd.print("ENTRANDO PARQUEO");
-    lcd.setCursor(0,1);
-    controlPuertas();
-    lcd.setCursor(0,0);
-    lcd.print("Listo");
-     lcd.setCursor(0,1);
-    
-  }
+  lcd.setCursor(0,0);
+  lcd.print("ENTRANDO PARQUEO");
+  delay(1000);
+  controlPuertas();
+  lcd.setCursor(0,0);
+  lcd.print("Listo              ");
+  
+  delay(3000);
+  lcd.clear();
 }
 
 void controlPuertas(){
@@ -386,7 +417,7 @@ void controlPuertas(){
      abrirPorton();
      digitalWrite(portonAbierto, LOW);
      lcd.setCursor(0,0);
-     lcd.print("- Ingreso vehiculo -");
+     lcd.print("Ingreso vehiculo      ");
       lcd.setCursor(0,1);
      while(millis() < TiempoAhora+periodo){
     // espere [periodo] milisegundos
@@ -400,7 +431,7 @@ void controlPuertas(){
 }
 void abrirPorton() {            // 2 vueltas derecha
   lcd.setCursor(0,0);
-  lcd.print("- abriendo -");
+  lcd.print("- abriendo -    ");
    lcd.setCursor(0,1);
  digitalWrite(portonAbierto, HIGH);
   motor1.setSpeed(10); 
@@ -410,10 +441,18 @@ void abrirPorton() {            // 2 vueltas derecha
 
 void cerrarPorton() {            // 2 vueltas derecha
   lcd.setCursor(0,0);
-  lcd.print("- cerrando -");
+  lcd.print("- cerrando -     ");
   lcd.setCursor(0,1);
  digitalWrite(portonCerrado, HIGH);
   motor2.setSpeed(10); 
   motor2.step(-stepsPerRevolution);
   delay(1000);
+}
+
+void seleccionParqueo() {
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("selecciona parqueo");
+  delay(2000);
+  lcd.clear();
 }

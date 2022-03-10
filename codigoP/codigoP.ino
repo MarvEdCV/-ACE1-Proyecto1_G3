@@ -231,6 +231,7 @@ void showScreen(){
 }
 
 void genToken(){
+  String tokenM = "";
   long randomNumber = random(10);  // Generate a random number between 0 and 10
   toks[0] = String(randomNumber);
 
@@ -244,17 +245,12 @@ void genToken(){
   
   // Impresion TOKEN en LCD
   lcd.setCursor(5,1);
-  lcd.print("TOKEN: ");
-  lcd.setCursor(12,1);
-  lcd.print(toks[0]);
-  lcd.setCursor(13,1);
-  lcd.print(toks[1]);
-  lcd.setCursor(14,1);
-  lcd.print(toks[2]);
-  lcd.setCursor(15,1);
-  lcd.print(toks[3]);
+  lcd.print("TOKEN: "); //esto borrar cuando se junte el codigo
 
   //aca mando token a aplicacion
+  tokenM = toks[0] + toks[1] +toks[2] + toks[3]; // tokenM es el que se manda para aplication
+  lcd.setCursor(12,1);
+  lcd.print(tokenM);
   delay(1000);
 }
 

@@ -93,7 +93,7 @@ int pinBuzzer = 53;
 // Led 8x8
 LedControl lc = LedControl(15, 17, 16, 1);
 const int pinMatriz[16] = {24, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 52};
-
+String parqueoLogic[] = {"V", "V", "V", "V", "V", "V", "V", "V", "V", "V", "V", "V", "V", "V", "V", "V"};
 void setup() {
 
 
@@ -181,18 +181,67 @@ void loop() {
           convertir4_8(m_Ocupados);
           vizualizarLed();
         }
-      }else if(Funcion == "INGRESAR"){
+      } else if (Funcion == "INGRESAR") {
+        matrizLogicoOcupados();
+        int num = 0;
+        for (int i = 0; i < 16; i++) {
+          if (parqueoLogic[i] == "V") {
+            num = i + 1;
+            break;
+          }
+        }
+        if (num != 0) {
+          Serial.print(String(num));
+        }
+        delay(3000);
+        llenarMatriz(m_Ocupados);
+        convertir4_8(m_Ocupados);
+        vizualizarLed();
+
+      } else if (Funcion == "RESERVAR") {
+        matrizLogicoOcupados();
+        int num = 0;
+        for (int i = 0; i < 16; i++) {
+          if (parqueoLogic[i] == "V") {
+            num = i + 1;
+            parqueoLogic[i] == "R";
+            break;
+          }
+        }
+        if (num != 0) {
+          Serial.print(String(num));
+        }
+        int index = 0;
+        for (int i = 0; i < 4; i++) {
+          for (int j = 0; j < 4; j++) {
+            if (parqueoLogic[index] == "R") {
+              m_Reservados[i][j] = 1;
+            }
+            index ++;
+          }
+        }
+        delay(3000);
         
-      }else if(Funcion == "RESERVAR"){
-        
-      }else if(Funcion == "SALIR"){
-        
+        convertir4_8(m_Reservados);
+        vizualizarLed();
+      } else if (Funcion == "SALIR") {
+
       }
     }
   }
 
 }
-
+void matrizLogicoOcupados() {
+  int index = 0;
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
+      if (m_Ocupados[i][j] == 1) {
+        parqueoLogic[index] = "O";
+      }
+      index ++;
+    }
+  }
+}
 boolean buscar(String usuario) {
   Usuario usr;
   for (int i = 0; i < finalEEPROM; i += sizeof(usr)) {

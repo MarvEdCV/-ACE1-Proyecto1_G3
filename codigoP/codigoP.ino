@@ -27,12 +27,19 @@ String UserPass = "1234";//Variable que recibe la contraseña del usuario para i
 String User2 = "admin2"; //Variable que recibe el nombre de usuario para iniciar sesión.
 String UserPass2 = "12342";
 char RegistrarUsuario;
-String Usuarios[2] = {"admin-1234", "sara-sarita"};
+String Usuarios[50] = {"admin-1234", "sara-sarita"};
 String Vartmp = "Eduardo-1234,REGISTRAR";
 Separador s;//variable para separar usuario de funcion a realizar
 String Token = "1234XZ";
 /*FIN EDUARDO*/
 
+//DIEGO
+struct Usuario {
+  char nombre[15];
+};
+int registro = 0;
+int finalEEPROM = 0;
+//FIN DIEGO
 
 byte lock[8] = {
   0b01110,
@@ -84,7 +91,7 @@ String letrasToks[4] = {"A", "B", "C", "D"};
 int pinBuzzer = 53;
 
 // Led 8x8
-LedControl lc = LedControl(16, 18, 17, 1);
+LedControl lc = LedControl(15, 17, 16, 1);
 const int pinMatriz[16] = {24, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 52};
 
 void setup() {
@@ -96,7 +103,7 @@ void setup() {
   //leds de prueba de puertas
   pinMode(portonAbierto, OUTPUT);//PA
   pinMode(portonCerrado, OUTPUT);//PC
-  pinMode(A7, INPUT); 
+  pinMode(A7, INPUT);
 
   //BUZZER
   pinMode(pinBuzzer, OUTPUT);
@@ -112,120 +119,127 @@ void setup() {
 
   tiempo1 = millis();
 
-  // NUM
-    randomSeed(analogRead(A6));
-    Serial.begin(9600);
-    Serial1.begin(9600);
-    Serial3.begin(9600);
 
- 
-// No funciona con lo de NUM
+  //crearAdmin();
+
+  // NUM
+  randomSeed(analogRead(A6));
+  Serial.begin(9600);
+  Serial1.begin(9600);
+  Usuario inicio;
+  EEPROM.get(0, inicio);
+  registro += sizeof(inicio);
+  finalEEPROM = posicionActual();
+  registro = finalEEPROM;
+  verUsuarios();
+
+
+
+  // No funciona con lo de NUM
   // LED 8X8
-  /*
   pinesMatriz();
   lc.shutdown(0, false);
   lc.setIntensity(0, 5);
   lc.clearDisplay(0);
-  */
 }
 
 void loop() {
-  
-  //INICIO EDUARDO
-
-  /*if(Serial.available()>0){
-    entrada = Serial.readString();//Serial.readString();
-    String UsuarioContra = s.separa(entrada,',',0);
-    String Funcion = s.separa(entrada,',',1);
-    if(Funcion == "REGISTRAR"){
-      Serial.println("Estoy en registrar");
-      Serial1.println("Estoy en registrar");
-      //BtnRegistrar(UsuarioContra);
-    }else if(Funcion == "LOGIN"){
-     // Serial1.println("Estoy en login");
-      //Serial.print("Estoy en login");
-      BtnLogin(UsuarioContra);
-    }else if(Funcion=="TOKEN"){
-      Serial.println(Token);
-    }
-
-    }
-
-
-
-    if(Serial.available()>0){
-      entrada = Serial.readString(); //ASI SE LEEN/RECIBEN DATOS DE LA APP
-      lcd.setCursor(0,0);
-      lcd.print(String(entrada));
-    }
-    if(entrada=="HOLA"){;
-      digitalWrite(led,HIGH);
-    }
-    if(entrada=="A"){
-      digitalWrite(led,LOW);
-    }*/
-
-  //FIN EDUARDO
-
   bool conection = true;
   // put your main code here, to run repeatedly:
   tiempo2 = millis();
 
-  if (tiempo2 < (tiempo1 + 1000)) { //hay que subirlo a 10000
+  if (tiempo2 < (tiempo1 + 10000)) {
     showScreen();
-  } else if (tiempo2 > (tiempo1 + 1000)) { //hay que subirlo a 10000
+  } else if (tiempo2 > (tiempo1 + 10000)) { //hay que subirlo a 10000
+    lcd.setCursor(0, 0);
+    lcd.print("  Esperando...  ");
+    lcd.setCursor(0, 1);
+    lcd.print("                  ");
     char code = keypad.getKey();
-
     //conection es una bandera que supone que se inicio sesion de manera correcta
-    if (conection) { //Si se inicia sesion correctamente entra a las validaciones
-      String userEntrada = "*USUARIO*";
-      lcd.setCursor(0, 0);
-      lcd.print(" "+userEntrada+"     ");
 
-      lcd.setCursor(0, 1);
-      lcd.print("   Bienvenido     ");
-      delay(5000); //tiempo 5 segundos de espera cuando se conecta
+    if (Serial.available() > 0) {
+      entrada = Serial.readString();
 
+      String UsuarioContra = s.separa(entrada, ',', 0);
 
-      genToken();
-      String validacion = validarToken();
-      if (validacion == "cancel") {
-        //solicitar si desea generar token otra vez
-        bool solicitud = true;
-        if (solicitud) {
-          genToken();
+      String Funcion = s.separa(entrada, ',', 1);
+
+      if (Funcion == "REGISTRAR") {
+        BtnRegistrar(UsuarioContra);
+      } else if (Funcion == "LOGIN") {
+        BtnLogin(UsuarioContra);
+      } else if (Funcion == "TOKEN") {
+        genToken();
+        Serial1.println(tokenM);
+        Serial.println(tokenM);
+        String validacion = validarToken();
+        if (validacion == "cancel") {
+        } else if (validacion == "fallido") {
+        } else if (validacion == "correcto") {
+          llenarMatriz(m_Ocupados);
+          convertir4_8(m_Ocupados);
+          vizualizarLed();
         }
-
-      } else if (validacion == "fallido") {
-        //aca hay que mandarle a la aplicacion que ejecute y que pida si el quiere pedir otro token o salirse
-        bool solicitud = true;
-        if (solicitud) {
-          genToken();
-        }
-
-      } else if (validacion == "correcto") {
-        seleccionParqueo();
+      }else if(Funcion == "INGRESAR"){
+        
+      }else if(Funcion == "RESERVAR"){
+        
+      }else if(Funcion == "SALIR"){
         
       }
-
-    } else { //si no a iniciado sesion que espere
-      //timer1.update();
-      //timer2.update();
-      lcd.setCursor(0, 0);
-      lcd.print("  Esperando...   ");
-
-      lcd.setCursor(0, 1);
-      lcd.print("                   ");
     }
   }
 
-  /*
-  llenarMatriz(m_Ocupados);
-  convertir4_8(m_Ocupados);
-  vizualizarLed();
-  */
 }
 
+boolean buscar(String usuario) {
+  Usuario usr;
+  for (int i = 0; i < finalEEPROM; i += sizeof(usr)) {
+    EEPROM.get(i, usr);
+    if (usuario == String(usr.nombre) || usuario == "admin-1234") {
+      Serial1.println("Encontrado");
+      return true;
+      //Aqui sampa la lista
+    }
+  }
+  return false;
+}
+
+void crearAdmin() {
+  registro = 0;
+  Usuario admin = {
+    "admin-1234",
+  };
+  EEPROM.put(registro, admin);
+  registro = registro + sizeof(admin);
+}
+int posicionActual() {
+  for (int i = 0; i < EEPROM.length(); i++) {
+    if (EEPROM.read(i) == 255) {
+      return i;
+    }
+  }
+}
+void guardarEEPROM(String nombre) {
+  Usuario usr;
+  for (int i = 0; i < nombre.length(); i++) {
+    usr.nombre[i] = nombre.charAt(i);
+  }
+  EEPROM.put(registro, usr);
+  registro += sizeof(usr);
+  //EEPROM.put(registro, usr);
+}
+void verUsuarios() {
+  Usuario usr;
+  int contador = 1;
+  for (int i = 0; i < finalEEPROM; i += sizeof(usr)) {
+    EEPROM.get(i, usr);
+    Serial1.println("Usuario " + String(contador) + ": ");
+    contador++;
+    Serial1.println(usr.nombre);
+  }
+}
 void pinesMatriz() {
   for (int i = 0 ; i < 16; i++) {
     pinMode(pinMatriz[i], INPUT);
@@ -296,33 +310,41 @@ void imprimir4x4(int matriz[4][4]) {
   }
 }
 
-//METODOS EDUARDO
 void BtnRegistrar(String entrada) {
   bool bandera = false;
-  for (int i = 0; i < 2; i++) {
-    if (Usuarios[i] == entrada) {
-      bandera = true;
-    }
-  }
+  bandera = buscar(entrada);
   if (bandera) {
+    lcd.setCursor(0, 0);
+    lcd.print("     Usuario             "  );
+    lcd.setCursor(0, 1);
+    lcd.print("     Existente           ");
+    delay(3000);
+
     Serial.print(true);
     bandera = false;
   } else if (!bandera) {
-    Serial.print(false);
+    lcd.setCursor(0, 0);
+    lcd.print("     Usuario             "  );
+    lcd.setCursor(0, 1);
+    lcd.print("     Registrado           ");
+    delay(3000);
     //Aqui ingresar usuario a la EPROM
+    guardarEEPROM(entrada);
+    Serial.print(false);
   }
 }
 void BtnLogin(String entrada) {
   bool bandera = false;
-
-  for (int i = 0; i < 2; i++) {
-    if (Usuarios[i] == entrada) {
-      bandera = true;//Hace match el usuario que quiere entrar con el almacenado.
-    }
-  }
+  bandera = buscar(entrada);
   if (bandera) {
     Serial.print(true);//Aqui retornamos que ya esta registrado el usuario
+    lcd.setCursor(0, 0);
+    lcd.print("     Conexion             "  );
+    lcd.setCursor(0, 1);
+    lcd.print("     exitosa           ");
+    delay(5000);
     bandera = false;
+
   } else if (!bandera) {
     Serial.print(false);
   }
@@ -348,7 +370,6 @@ void showScreen() {
 }
 
 void genToken() {
-  tokenM = "";
   long randomNumber = random(10);  // Generate a random number between 0 and 10
   toks[0] = String(randomNumber);
 
@@ -366,9 +387,6 @@ void genToken() {
 
   //aca mando token a aplicacion y muestra pantalla
   tokenM = toks[0] + toks[1] + toks[2] + toks[3]; // tokenM es el que se manda para aplication
-  lcd.setCursor(12, 1);
-  lcd.print(tokenM);
-  delay(1000);
 }
 
 String validarToken() {
@@ -386,8 +404,6 @@ String validarToken() {
       lcd.print("DIGITE SU TOKEN:");
       lcd.setCursor(0, 1);
       lcd.print(idToken);
-
-
       while (true) {
         key = keypad.getKey();
         if (key != NO_KEY) {
@@ -406,7 +422,6 @@ String validarToken() {
               entradaParqueo();
               break;
             } else {
-              tone(pinBuzzer, 500); // digitalWrite(buzzerP, HIGH);
 
               lcd.clear();
               lcd.setCursor(0, 0);
@@ -417,7 +432,7 @@ String validarToken() {
               idToken = "";
               delay(2000);
               lcd.clear();
-              noTone(pinBuzzer); // digitalWrite(buzzerP, LOW);
+
               break;
             }
           } else {
@@ -569,18 +584,18 @@ void cerrarPorton() {            // 2 vueltas derecha
 }
 
 void seleccionParqueo() {
- //int n =digitalRead(11) ;
-  Serial3.println(digitalRead(A7));
-  if(digitalRead(A7) == 1){
+  //int n =digitalRead(11) ;
+  Serial1.println(digitalRead(A7));
+  if (digitalRead(A7) == 1) {
     salidaPuertas();
-  }else{
-  delay(3000);
-  lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print("selecciona parqueo");
-  delay(2000);
-  lcd.clear();
+  } else {
+    delay(3000);
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("selecciona parqueo");
+    delay(2000);
+    lcd.clear();
   }
-   
- 
+
+
 }
